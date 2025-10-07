@@ -1,0 +1,9 @@
+export { default as Home } from "./home";
+export { default as Projects } from "./projects";
+export { default as People } from "./peoples";
+export { default as Publications } from "./publications";
+export { default as Models } from "./models";
+export { default as Datasets } from "./datasets";
+export { default as Join } from "./join";
+export { default as Contact } from "./contact";
+export { default as FAQ } from "./faq";
