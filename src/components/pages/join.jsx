@@ -36,17 +36,17 @@ const Join = () => {
   ];
 
   return (
-    <div className="font-[Manrope] font-medium text-slate-800">
+    <div className="font-[Manrope] font-medium text-gray-100 bg-gradient-to-b from-[#02081a] to-[#0a1025] min-h-screen">
       {/* Hero Section */}
       <section className="py-16 md:py-24 text-center">
         <div className="max-w-3xl mx-auto px-6">
-          <span className="text-xs tracking-widest uppercase text-cyan-600 font-medium">
+          <span className="text-xs tracking-widest uppercase text-cyan-400 font-medium">
             Join Us
           </span>
-          <h1 className="mt-4 text-4xl md:text-5xl font-semibold text-slate-900">
+          <h1 className="mt-4 text-4xl md:text-5xl font-semibold text-white">
             Build the Future of Responsible AI
           </h1>
-          <p className="mt-4 text-lg text-slate-700">
+          <p className="mt-4 text-lg text-gray-300">
             DeepFoundry Labs is a collaborative space for researchers, engineers, and students
             passionate about open and reproducible AI innovation.
           </p>
@@ -59,18 +59,18 @@ const Join = () => {
           {opportunities.map((o, idx) => (
             <div
               key={idx}
-              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+              className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center gap-3 mb-4 text-cyan-600">
+                <div className="flex items-center gap-3 mb-4 text-cyan-400">
                   <o.icon className="h-6 w-6" />
-                  <h3 className="text-lg font-semibold text-gray-900">{o.title}</h3>
+                  <h3 className="text-lg font-semibold text-white">{o.title}</h3>
                 </div>
-                <p className="text-sm text-gray-700 mb-4">{o.desc}</p>
-                <ul className="space-y-2 text-sm text-gray-700">
+                <p className="text-sm text-gray-300 mb-4">{o.desc}</p>
+                <ul className="space-y-2 text-sm text-gray-300">
                   {o.bullets.map((b, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 bg-cyan-500 rounded-full"></span>
+                      <span className="h-1.5 w-1.5 bg-cyan-400 rounded-full"></span>
                       {b}
                     </li>
                   ))}
@@ -83,13 +83,13 @@ const Join = () => {
 
       {/* Call for Interest Form */}
       <section className="py-16">
-        <div className="max-w-3xl mx-auto bg-white border border-gray-200 rounded-2xl p-8 shadow-md">
+        <div className="max-w-3xl mx-auto bg-gray-800/30 border border-gray-700 rounded-2xl p-8 shadow-md">
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-medium text-gray-900">
+            <h2 className="text-2xl md:text-3xl font-medium text-white">
               Expression of Interest
             </h2>
-            <p className="mt-3 text-gray-600">
-              Tell us a bit about yourself — we’ll reach out if there’s a match with
+            <p className="mt-3 text-gray-300">
+              Tell us a bit about yourself — we'll reach out if there's a match with
               current openings or collaborations.
             </p>
           </div>
@@ -99,41 +99,41 @@ const Join = () => {
               <input
                 type="text"
                 placeholder="Full name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-gray-400"
               />
               <input
                 type="email"
                 placeholder="Email address"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-gray-400"
               />
             </div>
 
             <input
               type="text"
               placeholder="Affiliation / Institution"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-gray-400"
             />
 
             <select
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white"
             >
-              <option>Area of Interest</option>
-              <option>Research Collaboration</option>
-              <option>Engineering / Development</option>
-              <option>Internship / Mentorship</option>
+              <option className="bg-gray-800">Area of Interest</option>
+              <option className="bg-gray-800">Research Collaboration</option>
+              <option className="bg-gray-800">Engineering / Development</option>
+              <option className="bg-gray-800">Internship / Mentorship</option>
             </select>
 
             <textarea
               rows="5"
               placeholder="Tell us about your experience or interest"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-gray-400"
             ></textarea>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">contact@deepfoundrylabs.com</span>
+              <span className="text-sm text-gray-400">contact@deepfoundrylabs.com</span>
               <button
                 type="submit"
-                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors flex items-center gap-2"
               >
                 Submit <ArrowRight className="h-4 w-4" />
               </button>
@@ -143,14 +143,14 @@ const Join = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 text-center bg-gray-50 border-t mt-12">
-        <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4">
+      <section className="py-20 text-center bg-gray-800/30 border-t border-gray-700 mt-12">
+        <h2 className="text-2xl md:text-3xl font-medium text-white mb-4">
           Collaborate, Learn, and Grow With Us
         </h2>
-        <p className="text-gray-600 mb-6">
-          Whether you’re an academic, developer, or student — we’re always open to meaningful collaboration.
+        <p className="text-gray-300 mb-6">
+          Whether you're an academic, developer, or student — we're always open to meaningful collaboration.
         </p>
-        <button className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-900 transition flex items-center gap-2 mx-auto">
+        <button className="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition flex items-center gap-2 mx-auto">
           <Mail className="h-4 w-4" />
           Get in Touch
         </button>

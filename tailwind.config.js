@@ -1,18 +1,22 @@
+// tailwind.config.js
+import { colors } from './src/config/colors.js'; // Adjust path as needed
+
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // ✅ Enables dark mode via .dark class
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
   theme: {
     extend: {
-      fontFamily: {
-        manrope: ['Manrope', 'sans-serif'], // ✅ Add your custom font here
-      },
       colors: {
-        // Optional: extend Tailwind’s palette slightly for better dark mode contrast
-        darkbg: '#0f172a', // Slate-900
-        darkcard: '#1e293b', // Slate-800
+        cyan: colors.primary,
+        gray: colors.neutral,
+      },
+      fontFamily: {
+        'manrope': ['Manrope', 'sans-serif'],
       },
     },
   },
   plugins: [],
-}
+  darkMode: 'class',
+};

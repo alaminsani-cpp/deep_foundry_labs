@@ -48,17 +48,17 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="font-[Manrope] font-medium text-slate-800">
+    <div className="font-[Manrope] font-medium text-gray-100 bg-gradient-to-b from-[#02081a] to-[#0a1025] min-h-screen">
       {/* Hero Section */}
       <section className="py-16 md:py-24 text-center">
         <div className="max-w-3xl mx-auto px-6">
-          <span className="text-xs tracking-widest uppercase text-cyan-600 font-medium">
+          <span className="text-xs tracking-widest uppercase text-cyan-400 font-medium">
             FAQ
           </span>
-          <h1 className="mt-4 text-4xl md:text-5xl font-semibold text-slate-900">
+          <h1 className="mt-4 text-4xl md:text-5xl font-semibold text-white">
             Frequently Asked Questions
           </h1>
-          <p className="mt-4 text-lg text-slate-700">
+          <p className="mt-4 text-lg text-gray-300">
             Answers to the most common questions about our research model, collaboration,
             and open resources.
           </p>
@@ -66,12 +66,12 @@ const FAQ = () => {
       </section>
 
       {/* FAQ List */}
-      <section className="max-w-3xl mx-auto px-6 pb-24">
+      <section className="max-w-3xl mx-auto px-6 pb-16">
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-gray-200 bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
+              className="border border-gray-700 bg-gray-800/30 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow"
             >
               <button
                 onClick={() =>
@@ -79,11 +79,11 @@ const FAQ = () => {
                 }
                 className="flex w-full items-center justify-between text-left"
               >
-                <span className="text-lg font-medium text-gray-900">
+                <span className="text-lg font-medium text-white">
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`h-5 w-5 text-cyan-600 transform transition-transform ${
+                  className={`h-5 w-5 text-cyan-400 transform transition-transform ${
                     openIndex === index ? "rotate-180" : ""
                   }`}
                 />
@@ -94,7 +94,7 @@ const FAQ = () => {
                   openIndex === index ? "max-h-40 mt-3" : "max-h-0"
                 }`}
               >
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-300 text-sm leading-relaxed">
                   {faq.answer}
                 </p>
               </div>
@@ -104,16 +104,16 @@ const FAQ = () => {
       </section>
 
       {/* Still Have Questions Section */}
-      <section className="py-20 bg-gray-50 border-t text-center">
-        <h2 className="text-2xl md:text-3xl font-medium text-gray-900 mb-4">
+      <section className="py-20 bg-gray-800/30 border-t border-gray-700 text-center">
+        <h2 className="text-2xl md:text-3xl font-medium text-white mb-4">
           Still have questions?
         </h2>
-        <p className="text-gray-600 mb-8">
-          If you didn’t find your answer here, feel free to reach out to us directly.
+        <p className="text-gray-300 mb-8">
+          If you didn't find your answer here, feel free to reach out to us directly.
         </p>
         <a
           href="#"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
         >
           Contact Us
         </a>

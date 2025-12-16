@@ -1,15 +1,144 @@
 import React, { useState } from 'react';
-import { Linkedin, Github, Mail, ExternalLink, Award, BookOpen, Users, MapPin } from 'lucide-react';
-import { team, roles } from '../../content/people';
+import { Linkedin, Github, Mail, ExternalLink, Award, BookOpen, Users, MapPin, AlertCircle, Loader } from 'lucide-react';
+import useFirebaseData from '../extra/usefb.js';
+
+// Fallback data in case Firebase is not available
+const fallbackTeam = [
+  {
+    id: "fallback-1",
+    name: "Ahmed Sani",
+    title: "Lead AI Researcher",
+    role: "Core Team",
+    bio: "Researcher focusing on NLP, multimodal learning, and low-resource language AI with publications in IEEE and ACM venues.",
+    location: "Dhaka, Bangladesh",
+    expertise: ["NLP", "Transformer", "Multimodal AI", "Bangla NLP"],
+    stats: {
+      publications: 15,
+      projects: 9,
+      citations: 320
+    },
+    links: {
+      linkedin: "#",
+      github: "#",
+      email: "ahmed@deepfoundrylabs.com",
+      website: "#"
+    }
+  },
+  {
+    id: "fallback-2",
+    name: "Nadia Rahman",
+    title: "Computer Vision Engineer",
+    role: "Researchers",
+    bio: "Specializes in computer vision, medical imaging, and multimodal fusion for healthcare applications.",
+    location: "Dhaka, Bangladesh",
+    expertise: ["Computer Vision", "Medical AI", "Deep Learning", "PyTorch"],
+    stats: {
+      publications: 8,
+      projects: 6,
+      citations: 145
+    },
+    links: {
+      linkedin: "#",
+      github: "#",
+      email: "nadia@deepfoundrylabs.com"
+    }
+  },
+  {
+    id: "fallback-3",
+    name: "Tariq Hasan",
+    title: "ML Engineer",
+    role: "Engineers",
+    bio: "Builds scalable machine learning pipelines and deploys AI models to production environments.",
+    location: "Remote",
+    expertise: ["MLOps", "Cloud", "Docker", "Kubernetes", "TensorFlow"],
+    stats: {
+      publications: 5,
+      projects: 12,
+      citations: 89
+    },
+    links: {
+      linkedin: "#",
+      github: "#",
+      email: "tariq@deepfoundrylabs.com"
+    }
+  },
+  {
+    id: "fallback-4",
+    name: "Rina Chowdhury",
+    title: "NLP Researcher",
+    role: "Researchers",
+    bio: "Works on Bangla language models, sentiment analysis, and low-resource NLP techniques.",
+    location: "Chittagong, Bangladesh",
+    expertise: ["NLP", "Sentiment Analysis", "Bangla", "BERT"],
+    stats: {
+      publications: 7,
+      projects: 5,
+      citations: 112
+    },
+    links: {
+      linkedin: "#",
+      github: "#",
+      email: "rina@deepfoundrylabs.com"
+    }
+  },
+  {
+    id: "fallback-5",
+    name: "Dr. Kazi Ahmed",
+    title: "Academic Advisor",
+    role: "Advisors",
+    bio: "Professor of Computer Science with expertise in AI ethics, responsible AI, and machine learning theory.",
+    location: "University of Dhaka",
+    expertise: ["AI Ethics", "Theory", "Research Methodology", "Publications"],
+    stats: {
+      publications: 42,
+      projects: 18,
+      citations: 2100
+    },
+    links: {
+      linkedin: "#",
+      email: "kazi@university.edu",
+      website: "#"
+    }
+  },
+  {
+    id: "fallback-6",
+    name: "Samia Khan",
+    title: "Data Scientist",
+    role: "Contributors",
+    bio: "Contributes to dataset creation, annotation pipelines, and data quality assurance for AI projects.",
+    location: "Remote",
+    expertise: ["Data Science", "Annotation", "Quality Assurance", "Python"],
+    stats: {
+      publications: 3,
+      projects: 7,
+      citations: 45
+    },
+    links: {
+      linkedin: "#",
+      github: "#",
+      email: "samia@deepfoundrylabs.com"
+    }
+  }
+];
+
+// Static roles for filtering
+const roles = ['All', 'Core Team', 'Researchers', 'Engineers', 'Contributors', 'Advisors'];
 
 const People = () => {
   const [selectedRole, setSelectedRole] = useState('All');
+
+  // Fetch team data from Firebase
+  const { data: firebaseTeam, loading, error } = useFirebaseData('team', fallbackTeam);
+  
+  // Use Firebase data if available, otherwise use fallback
+  const team = firebaseTeam && firebaseTeam.length > 0 ? firebaseTeam : fallbackTeam;
 
   const filteredTeam = team.filter(member => 
     selectedRole === 'All' || member.role === selectedRole
   );
 
   const getInitials = (name) => {
+    if (!name) return 'DF';
     return name
       .split(' ')
       .map(n => n[0])
@@ -19,23 +148,67 @@ const People = () => {
   };
 
   const getRoleColor = (role) => {
+    if (!role) return 'bg-gray-800/30 text-gray-400 border border-gray-700';
+    
     switch (role) {
-      case 'Core Team': return 'bg-cyan-100 text-cyan-700 border border-cyan-200';
-      case 'Researchers': return 'bg-purple-100 text-purple-700 border border-purple-200';
-      case 'Engineers': return 'bg-blue-100 text-blue-700 border border-blue-200';
-      case 'Contributors': return 'bg-green-100 text-green-700 border border-green-200';
-      case 'Advisors': return 'bg-amber-100 text-amber-700 border border-amber-200';
-      default: return 'bg-gray-100 text-gray-700 border border-gray-200';
+      case 'Core Team': return 'bg-cyan-900/30 text-cyan-400 border border-cyan-700';
+      case 'Researchers': return 'bg-purple-900/30 text-purple-400 border border-purple-700';
+      case 'Engineers': return 'bg-blue-900/30 text-blue-400 border border-blue-700';
+      case 'Contributors': return 'bg-green-900/30 text-green-400 border border-green-700';
+      case 'Advisors': return 'bg-amber-900/30 text-amber-400 border border-amber-700';
+      default: return 'bg-gray-800/30 text-gray-400 border border-gray-700';
     }
   };
 
-  return (
-    <div className="font-[Manrope] font-medium text-slate-800">
-      {/* Header Section */}
-      <section className="py-12 border-b border-gray-200">
+  if (loading) {
+    return (
+      <div className="font-[Manrope] font-medium text-gray-100 bg-gradient-to-b from-[#02081a] to-[#0a1025] min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl md:text-5xl font-semibold text-slate-900">Our Team</h1>
-          <p className="mt-4 text-lg text-slate-700 max-w-3xl mx-auto">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto"></div>
+          <p className="mt-4 text-gray-300">Loading team data from Firebase...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="font-[Manrope] font-medium text-gray-100 bg-gradient-to-b from-[#02081a] to-[#0a1025] min-h-screen">
+      {/* Show warning if using fallback data */}
+      {error && (
+        <div className="fixed top-4 right-4 z-50 bg-yellow-900/80 border border-yellow-700 rounded-lg p-4 max-w-md shadow-lg">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-white">Using Local Data</p>
+              <p className="text-xs text-gray-300 mt-1">
+                Could not connect to Firebase. Using fallback data. Check your internet connection and Firebase rules.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Show info if using Firebase data
+      {!error && firebaseTeam && firebaseTeam.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 bg-green-900/80 border border-green-700 rounded-lg p-4 max-w-md shadow-lg">
+          <div className="flex items-start gap-3">
+            <Loader className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5 animate-pulse" />
+            <div>
+              <p className="text-sm font-medium text-white">Live Data from Firebase</p>
+              <p className="text-xs text-gray-300 mt-1">
+                Showing real-time team data from the database.
+              </p>
+            </div>
+          </div>
+        </div>
+      )} */}
+
+      {/* Header Section */}
+      <section className="py-12">
+        <div className="text-center">
+          <span className="text-xs tracking-widest uppercase text-cyan-400 font-medium">Team</span>
+          <h1 className="mt-4 text-4xl md:text-5xl font-semibold text-white">Our Team</h1>
+          <p className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto">
             A diverse group of researchers, engineers, and contributors building open AI for Bangla and beyond.
           </p>
         </div>
@@ -43,9 +216,9 @@ const People = () => {
 
       {/* Filter Section */}
       <section className="py-8 px-6">
-        <div className="bg-gray-100 border border-gray-300 rounded-2xl p-6">
+        <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
+            <div className="flex items-center gap-2 text-sm text-gray-300">
               <Users className="h-4 w-4" />
               <span className="font-medium">Filter by Role</span>
             </div>
@@ -56,16 +229,22 @@ const People = () => {
                   onClick={() => setSelectedRole(role)}
                   className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap transition shadow-sm ${
                     selectedRole === role
-                      ? 'bg-black text-white'
-                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-cyan-600 text-white'
+                      : 'bg-gray-800/50 text-gray-300 border border-gray-600 hover:bg-gray-700/50'
                   }`}
                 >
                   {role}
                 </button>
               ))}
             </div>
-            <div className="text-sm text-gray-600 pt-2 border-t border-gray-300">
+            <div className="text-sm text-gray-400 pt-2 border-t border-gray-700">
               Showing {filteredTeam.length} {filteredTeam.length === 1 ? 'member' : 'members'}
+              {!error && firebaseTeam && firebaseTeam.length > 0 && (
+                <span className="text-green-400 ml-2">• Live</span>
+              )}
+              {error && (
+                <span className="text-yellow-400 ml-2">• Offline</span>
+              )}
             </div>
           </div>
         </div>
@@ -76,81 +255,123 @@ const People = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTeam.map((member) => (
             <div
-              key={member.id}
-              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 group"
+              key={member.id || member.name}
+              className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 group"
             >
               {/* Avatar and Basic Info */}
               <div className="flex flex-col items-center text-center mb-4">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-2xl font-semibold mb-4 group-hover:scale-105 transition-transform">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-semibold mb-4 group-hover:scale-105 transition-transform">
                   {getInitials(member.name)}
                 </div>
-                <h3 className="text-xl font-medium text-gray-900 mb-1">{member.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{member.title}</p>
+                <h3 className="text-xl font-medium text-white mb-1">{member.name || 'Team Member'}</h3>
+                <p className="text-sm text-gray-400 mb-2">{member.title || 'AI Professional'}</p>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
-                  {member.role}
+                  {member.role || 'Team Member'}
                 </span>
               </div>
 
               {/* Location */}
               <div className="flex items-center justify-center gap-1 text-xs text-gray-500 mb-4">
                 <MapPin className="h-3 w-3" />
-                {member.location}
+                {member.location || 'Location not specified'}
               </div>
 
               {/* Bio */}
-              <p className="text-sm text-gray-600 text-center mb-4 line-clamp-3">
-                {member.bio}
+              <p className="text-sm text-gray-300 text-center mb-4 line-clamp-3">
+                {member.bio || 'No bio available.'}
               </p>
 
               {/* Expertise Tags */}
-              <div className="flex flex-wrap gap-2 justify-center mb-4 pb-4 border-b border-gray-100">
-                {member.expertise.map((skill) => (
-                  <span key={skill} className="px-2 py-1 bg-gray-50 text-gray-600 rounded-lg text-xs">
+              <div className="flex flex-wrap gap-2 justify-center mb-4 pb-4 border-b border-gray-700">
+                {(member.expertise || []).map((skill, index) => (
+                  <span key={`${skill}-${index}`} className="px-2 py-1 bg-gray-800/50 text-gray-300 rounded-lg text-xs border border-gray-700">
                     {skill}
                   </span>
                 ))}
+                {(!member.expertise || member.expertise.length === 0) && (
+                  <span className="px-2 py-1 bg-gray-800/30 text-gray-400 rounded-lg text-xs border border-gray-700 italic">
+                    AI & Research
+                  </span>
+                )}
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-4 pb-4 border-b border-gray-100">
+              <div className="grid grid-cols-3 gap-4 mb-4 pb-4 border-b border-gray-700">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
-                    <BookOpen className="h-3 w-3 text-gray-400" />
+                    <BookOpen className="h-3 w-3 text-gray-500" />
                   </div>
-                  <div className="text-lg font-medium text-gray-900">{member.stats.publications}</div>
-                  <div className="text-xs text-gray-500">Papers</div>
+                  <div className="text-lg font-medium text-white">
+                    {member.stats?.publications || 0}
+                  </div>
+                  <div className="text-xs text-gray-400">Papers</div>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
-                    <Award className="h-3 w-3 text-gray-400" />
+                    <Award className="h-3 w-3 text-gray-500" />
                   </div>
-                  <div className="text-lg font-medium text-gray-900">{member.stats.projects}</div>
-                  <div className="text-xs text-gray-500">Projects</div>
+                  <div className="text-lg font-medium text-white">
+                    {member.stats?.projects || 0}
+                  </div>
+                  <div className="text-xs text-gray-400">Projects</div>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 mb-1">
-                    <ExternalLink className="h-3 w-3 text-gray-400" />
+                    <ExternalLink className="h-3 w-3 text-gray-500" />
                   </div>
-                  <div className="text-lg font-medium text-gray-900">{member.stats.citations}</div>
-                  <div className="text-xs text-gray-500">Citations</div>
+                  <div className="text-lg font-medium text-white">
+                    {member.stats?.citations || 0}
+                  </div>
+                  <div className="text-xs text-gray-400">Citations</div>
                 </div>
               </div>
 
               {/* Social Links */}
               <div className="flex items-center justify-center gap-3">
-                <a href={member.links.linkedin} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-cyan-600 transition-colors" aria-label="LinkedIn">
-                  <Linkedin className="h-4 w-4" />
-                </a>
-                <a href={member.links.github} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-cyan-600 transition-colors" aria-label="GitHub">
-                  <Github className="h-4 w-4" />
-                </a>
-                <a href={`mailto:${member.links.email}`} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-cyan-600 transition-colors" aria-label="Email">
-                  <Mail className="h-4 w-4" />
-                </a>
-                {member.links.website && (
-                  <a href={member.links.website} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600 hover:text-cyan-600 transition-colors" aria-label="Website">
+                {member.links?.linkedin && (
+                  <a 
+                    href={member.links.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-cyan-400 transition-colors" 
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                  </a>
+                )}
+                {member.links?.github && (
+                  <a 
+                    href={member.links.github} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-cyan-400 transition-colors" 
+                    aria-label="GitHub"
+                  >
+                    <Github className="h-4 w-4" />
+                  </a>
+                )}
+                {member.links?.email && (
+                  <a 
+                    href={`mailto:${member.links.email}`} 
+                    className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-cyan-400 transition-colors" 
+                    aria-label="Email"
+                  >
+                    <Mail className="h-4 w-4" />
+                  </a>
+                )}
+                {member.links?.website && (
+                  <a 
+                    href={member.links.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-cyan-400 transition-colors" 
+                    aria-label="Website"
+                  >
                     <ExternalLink className="h-4 w-4" />
                   </a>
+                )}
+                {(!member.links?.linkedin && !member.links?.github && !member.links?.email && !member.links?.website) && (
+                  <span className="text-xs text-gray-500">Contact info not available</span>
                 )}
               </div>
             </div>
@@ -159,17 +380,17 @@ const People = () => {
       </section>
 
       {/* Join Team CTA */}
-      <section className="py-16 bg-gradient-to-br from-cyan-50 to-sky-50 rounded-3xl">
+      <section className="py-16 bg-gradient-to-br from-cyan-900/30 to-sky-900/30 rounded-3xl border border-cyan-800/30">
         <div className="text-center max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-medium text-gray-900 mb-4">Join Our Team</h2>
-          <p className="text-gray-600 mb-8">
+          <h2 className="text-3xl md:text-4xl font-medium text-white mb-4">Join Our Team</h2>
+          <p className="text-gray-300 mb-8">
             We're always looking for passionate researchers, engineers, and contributors to join our mission of building open AI for low-resource languages.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <button className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+            <button className="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors">
               View Open Positions
             </button>
-            <button className="px-6 py-3 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors">
+            <button className="px-6 py-3 border border-gray-600 bg-gray-800/50 text-gray-300 rounded-lg hover:bg-gray-700/50 transition-colors">
               Become a Contributor
             </button>
           </div>

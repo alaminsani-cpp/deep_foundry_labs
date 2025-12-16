@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-
-import { Header, CTABanner, Footer } from "./components/layout";
+import { Header, Footer } from "./components/layout";
 import { Home, Projects, People, Publications, Models, Datasets, Join, Contact, FAQ } from "./components/pages";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
 
-
-function App() {
+function AppContent() {
   const [currentTab, setCurrentTab] = useState('Home');
 
   const renderPage = () => {
@@ -22,7 +21,7 @@ function App() {
       case 'Datasets':
         return <Datasets/>;
       case 'Blog':
-        return <div className="text-center py-20 font-['Manrope']">Blog Page - Coming Soon</div>;
+        return <div className="text-center py-20 font-['Manrope'] text-white">Blog Page - Coming Soon</div>;
       case 'FAQ':
         return <FAQ/>;
       case 'Join':
@@ -35,9 +34,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex flex-col font-['Manrope']">
+    <div className="min-h-screen bg-gradient-to-b from-[#02081a] to-[#0a1025] text-gray-100 flex flex-col font-['Manrope']">
       <Header currentTab={currentTab} onTabChange={setCurrentTab} />
-      <CTABanner />
       
       <main className="mx-auto max-w-6xl px-6 pt-4 pb-10 flex-grow w-full">
         {renderPage()}
@@ -45,6 +43,14 @@ function App() {
       
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
