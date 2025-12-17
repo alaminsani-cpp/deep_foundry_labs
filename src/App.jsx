@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Header, Footer } from "./components/layout";
-import { Home, Projects, People, Publications, Models, Datasets, Join, Contact, FAQ } from "./components/pages";
+import { Home, Projects, People, Publications, Models, Datasets, Join, Contact, FAQ, NotFound } from "./components/pages";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 
 function AppContent() {
@@ -20,8 +20,8 @@ function AppContent() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/join" element={<Join />} />
           <Route path="/contact" element={<Contact />} />
-          {/* Optional: Add a 404 route */}
-          <Route path="*" element={<div className="text-center py-20 text-white">Page Not Found</div>} />
+          {/* 404 Route - This catches all unmatched routes */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />

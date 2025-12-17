@@ -7,3 +7,4 @@ export { default as Datasets } from "./datasets";
 export { default as Join } from "./join";
 export { default as Contact } from "./contact";
 export { default as FAQ } from "./faq";
+export { default as NotFound } from './notfound.jsx'; 
