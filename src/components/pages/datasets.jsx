@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Database, Download, ExternalLink, Calendar, Tag, Users, Search, Filter, AlertCircle, Loader } from 'lucide-react';
 import useFirebaseData from '../extra/usefb.js';
 
-// HuggingFace Logo Component using actual image
+// HuggingFace Logo Component
 const HuggingFaceLogo = ({ className = "h-4 w-4" }) => (
   <img
     src="https://huggingface.co/front/assets/huggingface_logo-noborder.svg"
@@ -11,7 +11,7 @@ const HuggingFaceLogo = ({ className = "h-4 w-4" }) => (
   />
 );
 
-// Fallback data in case Firebase is not available
+// Fallback data
 const fallbackDatasets = [
   {
     id: "fallback-1",
@@ -150,17 +150,73 @@ const fallbackDatasets = [
 const Datasets = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [processedDatasets, setProcessedDatasets] = useState([]);
+  const [usingFirebase, setUsingFirebase] = useState(false);
 
   const categories = ['All', 'NLP', 'Multimodal', 'Speech', 'Healthcare', 'Finance', 'Legal'];
   
   // Fetch datasets from Firebase
-  const { data: firebaseDatasets, loading, error } = useFirebaseData('datasets', fallbackDatasets);
+  const { data: firebaseData, loading, error } = useFirebaseData('datasets', fallbackDatasets);
   
-  // Use Firebase data if available, otherwise use fallback
-  const datasets = firebaseDatasets && firebaseDatasets.length > 0 ? firebaseDatasets : fallbackDatasets;
+  // Process Firebase data when it loads
+  useEffect(() => {
+    if (firebaseData && firebaseData.length > 0) {
+      // Check if this is Firebase data (has different structure) or fallback
+      const isFirebaseData = firebaseData.some(item => item.id && item.id.includes('fallback')) ? false : true;
+      setUsingFirebase(isFirebaseData);
+      
+      // Transform Firebase data to match expected structure
+      const transformedData = firebaseData.map((item, index) => {
+        // If it's already in the correct format (from fallback), return as-is
+        if (item.id && item.id.includes('fallback')) {
+          return item;
+        }
+        
+        // Transform Firebase document structure
+        return {
+          id: item.id || `dataset-${index}`,
+          name: item.name || item.title || 'Untitled Dataset',
+          category: item.category || item.type || 'NLP',
+          description: item.description || 'No description available.',
+          size: item.size || 'Size not specified',
+          language: item.language || 'Bangla',
+          license: item.license || 'CC BY 4.0',
+          date: item.date || item.year || '2024',
+          tags: Array.isArray(item.tags) ? item.tags : 
+                (item.keywords ? item.keywords.split(',').map(k => k.trim()) : ['AI Research']),
+          stats: {
+            samples: item.stats?.samples || item.samples || 0,
+            annotations: item.stats?.annotations || item.annotations || 0,
+            size: item.stats?.size || item.fileSize || 'N/A'
+          },
+          links: {
+            paper: item.links?.paper || item.paperLink || '#',
+            download: item.links?.download || item.downloadLink || '#',
+            huggingface: item.links?.huggingface || item.hfLink || '#'
+          },
+          team: Array.isArray(item.team) ? item.team : 
+                (item.authors ? item.authors.split(',').map(a => a.trim()) : ['Research Team'])
+        };
+      });
+      
+      setProcessedDatasets(transformedData);
+    } else {
+      // Use fallback data
+      setProcessedDatasets(fallbackDatasets);
+      setUsingFirebase(false);
+    }
+  }, [firebaseData]);
+
+  // Debug: Log Firebase data structure
+  useEffect(() => {
+    if (firebaseData && firebaseData.length > 0) {
+      console.log('Firebase datasets raw:', firebaseData);
+      console.log('Processed datasets:', processedDatasets);
+    }
+  }, [firebaseData, processedDatasets]);
 
   // Filter datasets based on search and category
-  const filteredDatasets = datasets.filter(dataset => {
+  const filteredDatasets = processedDatasets.filter(dataset => {
     const matchesCategory = selectedCategory === 'All' || dataset.category === selectedCategory;
     
     if (!searchQuery) return matchesCategory;
@@ -169,8 +225,9 @@ const Datasets = () => {
     return matchesCategory && (
       dataset.name?.toLowerCase().includes(query) ||
       dataset.description?.toLowerCase().includes(query) ||
-      dataset.tags?.some(tag => tag.toLowerCase().includes(query)) ||
-      dataset.language?.toLowerCase().includes(query)
+      (dataset.tags && dataset.tags.some(tag => tag.toLowerCase().includes(query))) ||
+      dataset.language?.toLowerCase().includes(query) ||
+      dataset.category?.toLowerCase().includes(query)
     );
   });
 
@@ -187,7 +244,7 @@ const Datasets = () => {
 
   return (
     <div className="font-[Manrope] font-medium text-gray-100 bg-gradient-to-b from-[#02081a] to-[#0a1025] min-h-screen">
-      {/* Show warning if using fallback data */}
+      {/* Show status notifications */}
       {error && (
         <div className="fixed top-4 right-4 z-50 bg-yellow-900/80 border border-yellow-700 rounded-lg p-4 max-w-md shadow-lg">
           <div className="flex items-start gap-3">
@@ -195,22 +252,35 @@ const Datasets = () => {
             <div>
               <p className="text-sm font-medium text-white">Using Local Data</p>
               <p className="text-xs text-gray-300 mt-1">
-                Could not connect to Firebase. Using fallback data. Check your internet connection and Firebase rules.
+                {error.message || 'Could not connect to Firebase. Using fallback data.'}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Show info if using Firebase data */}
-      {!error && firebaseDatasets && firebaseDatasets.length > 0 && (
+      {/* {!error && usingFirebase && (
         <div className="fixed top-4 right-4 z-50 bg-green-900/80 border border-green-700 rounded-lg p-4 max-w-md shadow-lg">
           <div className="flex items-start gap-3">
             <Loader className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5 animate-pulse" />
             <div>
               <p className="text-sm font-medium text-white">Live Data from Firebase</p>
               <p className="text-xs text-gray-300 mt-1">
-                Showing real-time datasets from the database.
+                Showing {processedDatasets.length} real-time dataset{processedDatasets.length !== 1 ? 's' : ''} from database.
+              </p>
+            </div>
+          </div>
+        </div>
+      )} */}
+
+      {!error && !usingFirebase && firebaseData && firebaseData.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 bg-blue-900/80 border border-blue-700 rounded-lg p-4 max-w-md shadow-lg">
+          <div className="flex items-start gap-3">
+            <Database className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-white">Using Fallback Data</p>
+              <p className="text-xs text-gray-300 mt-1">
+                Firebase collection is empty. Using built-in dataset examples.
               </p>
             </div>
           </div>
@@ -307,7 +377,7 @@ const Datasets = () => {
 
               {/* Results Count */}
               <div className="text-sm text-gray-400 pt-2 border-t border-gray-700">
-                Showing {filteredDatasets.length} of {datasets.length} {datasets.length === 1 ? 'dataset' : 'datasets'}
+                Showing {filteredDatasets.length} of {processedDatasets.length} {processedDatasets.length === 1 ? 'dataset' : 'datasets'}
                 {searchQuery && (
                   <span className="ml-2">
                     matching "<span className="text-cyan-300">{searchQuery}</span>"
@@ -316,11 +386,14 @@ const Datasets = () => {
                 {selectedCategory !== 'All' && (
                   <span className="ml-2">in <span className="text-cyan-300">{selectedCategory}</span></span>
                 )}
-                {!error && firebaseDatasets && firebaseDatasets.length > 0 && (
+                {usingFirebase && (
                   <span className="text-green-400 ml-2">• Live</span>
                 )}
+                {!usingFirebase && !error && (
+                  <span className="text-blue-400 ml-2">• Local Data</span>
+                )}
                 {error && (
-                  <span className="text-yellow-400 ml-2">• Offline</span>
+                  <span className="text-yellow-400 ml-2">• Offline Mode</span>
                 )}
               </div>
             </div>
@@ -443,7 +516,7 @@ const Datasets = () => {
 
                 {/* Links */}
                 <div className="flex flex-wrap gap-3">
-                  {dataset.links?.paper && (
+                  {dataset.links?.paper && dataset.links.paper !== '#' && (
                     <a
                       href={dataset.links.paper}
                       target="_blank"
@@ -455,7 +528,7 @@ const Datasets = () => {
                       <span className="hidden sm:inline">Paper</span>
                     </a>
                   )}
-                  {dataset.links?.download && (
+                  {dataset.links?.download && dataset.links.download !== '#' && (
                     <a
                       href={dataset.links.download}
                       target="_blank"
@@ -467,7 +540,7 @@ const Datasets = () => {
                       <span className="hidden sm:inline">Download</span>
                     </a>
                   )}
-                  {dataset.links?.huggingface && (
+                  {dataset.links?.huggingface && dataset.links.huggingface !== '#' && (
                     <a
                       href={dataset.links.huggingface}
                       target="_blank"
@@ -479,7 +552,9 @@ const Datasets = () => {
                       <span className="hidden sm:inline">HuggingFace</span>
                     </a>
                   )}
-                  {!dataset.links?.paper && !dataset.links?.download && !dataset.links?.huggingface && (
+                  {(!dataset.links?.paper || dataset.links.paper === '#') && 
+                   (!dataset.links?.download || dataset.links.download === '#') && 
+                   (!dataset.links?.huggingface || dataset.links.huggingface === '#') && (
                     <span className="text-sm text-gray-500 italic">Links coming soon</span>
                   )}
                 </div>
@@ -528,19 +603,19 @@ const Datasets = () => {
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
             <div className="p-4 bg-gray-800/30 border border-gray-700 rounded-xl">
               <div className="text-lg font-medium text-white mb-1">
-                {datasets.length}+
+                {processedDatasets.length}+
               </div>
               <div className="text-gray-400">Curated Datasets</div>
             </div>
             <div className="p-4 bg-gray-800/30 border border-gray-700 rounded-xl">
               <div className="text-lg font-medium text-white mb-1">
-                {datasets.reduce((total, ds) => total + (ds.stats?.samples || 0), 0).toLocaleString()}+
+                {processedDatasets.reduce((total, ds) => total + (ds.stats?.samples || 0), 0).toLocaleString()}+
               </div>
               <div className="text-gray-400">Total Samples</div>
             </div>
             <div className="p-4 bg-gray-800/30 border border-gray-700 rounded-xl">
               <div className="text-lg font-medium text-white mb-1">
-                {new Set(datasets.map(ds => ds.category)).size}
+                {new Set(processedDatasets.map(ds => ds.category)).size}
               </div>
               <div className="text-gray-400">Categories</div>
             </div>
