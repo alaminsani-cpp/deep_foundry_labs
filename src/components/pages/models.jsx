@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Cpu, Database, ExternalLink, Download, Sparkles, Search, Filter, AlertCircle, Loader } from "lucide-react";
+import { Cpu, Database, ExternalLink, Download, Sparkles, Search, Filter, AlertCircle, Loader, Grid, List } from "lucide-react";
 import useFirebaseData from "../extra/usefb";
 
 // HuggingFace Logo Component
@@ -90,6 +90,7 @@ const fallbackModels = [
 const Models = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   const categories = ['All', 'Language Model', 'Multimodal Model', 'Graph Neural Network', 'Question Answering', 'Computer Vision', 'Speech', 'Transformer'];
   
@@ -142,21 +143,6 @@ const Models = () => {
         </div>
       )}
 
-      {/* Show info if using Firebase data
-      {!error && firebaseModels && firebaseModels.length > 0 && (
-        <div className="fixed top-4 right-4 z-50 bg-green-900/80 border border-green-700 rounded-lg p-4 max-w-md shadow-lg">
-          <div className="flex items-start gap-3">
-            <Loader className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5 animate-pulse" />
-            <div>
-              <p className="text-sm font-medium text-white">Live Data from Firebase</p>
-              <p className="text-xs text-gray-300 mt-1">
-                Showing real-time models from the database.
-              </p>
-            </div>
-          </div>
-        </div>
-      )} */}
-
       {/* Header Section */}
       <section className="py-12 text-center">
         <div className="max-w-3xl mx-auto px-6">
@@ -190,26 +176,57 @@ const Models = () => {
                 />
               </div>
 
-              {/* Category Filter */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-300">
-                  <Filter className="h-4 w-4" />
-                  <span className="font-medium">Filter by Category</span>
+              {/* Category Filter and View Toggle */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <Filter className="h-4 w-4" />
+                    <span className="font-medium">Filter by Category</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap transition shadow-sm ${
+                          selectedCategory === category
+                            ? 'bg-cyan-600 text-white'
+                            : 'bg-gray-800/50 text-gray-300 border border-gray-600 hover:bg-gray-700/50 hover:text-white'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
+
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <span className="text-sm text-gray-300 hidden sm:block">View:</span>
+                  <div className="flex bg-gray-800/50 border border-gray-600 rounded-xl p-1">
                     <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`px-4 py-2 rounded-xl text-sm whitespace-nowrap transition shadow-sm ${
-                        selectedCategory === category
+                      onClick={() => setViewMode('grid')}
+                      className={`px-3 py-2 rounded-lg transition ${
+                        viewMode === 'grid'
                           ? 'bg-cyan-600 text-white'
-                          : 'bg-gray-800/50 text-gray-300 border border-gray-600 hover:bg-gray-700/50 hover:text-white'
+                          : 'text-gray-400 hover:text-white'
                       }`}
+                      title="Grid View"
                     >
-                      {category}
+                      <Grid className="h-4 w-4" />
                     </button>
-                  ))}
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`px-3 py-2 rounded-lg transition ${
+                        viewMode === 'list'
+                          ? 'bg-cyan-600 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                      title="List View"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -253,6 +270,7 @@ const Models = () => {
                 {selectedCategory !== 'All' && (
                   <span className="ml-2">in <span className="text-cyan-300">{selectedCategory}</span></span>
                 )}
+                <span className="ml-2">• {viewMode === 'grid' ? 'Grid' : 'List'} View</span>
                 {!error && firebaseModels && firebaseModels.length > 0 && (
                   <span className="text-green-400 ml-2">• Live</span>
                 )}
@@ -265,7 +283,7 @@ const Models = () => {
         </div>
       </section>
 
-      {/* Models Grid */}
+      {/* Models Grid/List */}
       <section className="py-10 px-6 max-w-6xl mx-auto">
         {filteredModels.length === 0 ? (
           <div className="text-center py-20">
@@ -287,7 +305,8 @@ const Models = () => {
               Clear Filters
             </button>
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
+          /* Grid View */
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredModels.map((model, idx) => (
               <div
@@ -351,6 +370,90 @@ const Models = () => {
                   {!model.links?.hf && !model.links?.paper && (
                     <span className="text-sm text-gray-500 italic">Links coming soon</span>
                   )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* List View */
+          <div className="space-y-6">
+            {filteredModels.map((model, idx) => (
+              <div
+                key={model.id || idx}
+                className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 group hover:border-cyan-800/50"
+              >
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Left side: Basic info and description */}
+                  <div className="lg:w-2/3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2 text-cyan-400 font-medium text-sm">
+                          <Cpu className="h-4 w-4" />
+                          {model.type || 'AI Model'}
+                        </div>
+                        <h3 className="text-xl font-semibold text-white group-hover:text-cyan-400 transition-colors">
+                          {model.name || 'Untitled Model'}
+                        </h3>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-400">{model.size || 'Size not specified'}</p>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-gray-300 text-sm mb-4">
+                      {model.description || 'No description available.'}
+                    </p>
+
+                    {/* Metrics */}
+                    {model.metrics && model.metrics.length > 0 && (
+                      <ul className="space-y-2 text-sm">
+                        {model.metrics.map((metric, i) => (
+                          <li key={i} className="flex items-center gap-2 text-gray-300">
+                            <Sparkles className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                            <span>{metric}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {/* Right side: Links */}
+                  <div className="lg:w-1/3 lg:border-l lg:border-gray-700 lg:pl-6">
+                    <div className="flex flex-col gap-3 h-full justify-center">
+                      {model.links?.hf && (
+                        <a
+                          href={model.links.hf}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 rounded-lg text-sm hover:bg-gray-700/50 hover:border-cyan-500 transition-all text-gray-300 hover:text-white group/link"
+                          title="HuggingFace"
+                        >
+                          <HuggingFaceLogo className="h-4 w-4" />
+                          <span>View on HuggingFace</span>
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                        </a>
+                      )}
+                      {model.links?.paper && (
+                        <a
+                          href={model.links.paper}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 rounded-lg text-sm hover:bg-gray-700/50 hover:border-cyan-500 transition-all text-gray-300 hover:text-white group/link"
+                          title="Read Paper"
+                        >
+                          <Download className="h-4 w-4" />
+                          <span>Read Paper</span>
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                        </a>
+                      )}
+                      {!model.links?.hf && !model.links?.paper && (
+                        <div className="text-center py-4">
+                          <span className="text-sm text-gray-500 italic">Links coming soon</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FileText, ExternalLink, Code, AlertCircle, Loader, Search } from "lucide-react";
+import { FileText, ExternalLink, Code, AlertCircle, Loader, Search, Grid, List } from "lucide-react";
 import useFirebaseData from '../extra/usefb.js';
 
 // Fallback data in case Firebase is not available
@@ -95,6 +95,7 @@ const HuggingFaceLogo = ({ className = "h-4 w-4" }) => (
 
 const Publications = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   
   // Fetch publications from Firebase
   const { data: firebasePapers, loading, error } = useFirebaseData('publications', fallbackPapers);
@@ -144,21 +145,6 @@ const Publications = () => {
         </div>
       )}
 
-      {/* Show info if using Firebase data
-      {!error && firebasePapers && firebasePapers.length > 0 && (
-        <div className="fixed top-4 right-4 z-50 bg-green-900/80 border border-green-700 rounded-lg p-4 max-w-md shadow-lg">
-          <div className="flex items-start gap-3">
-            <Loader className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5 animate-pulse" />
-            <div>
-              <p className="text-sm font-medium text-white">Live Data from Firebase</p>
-              <p className="text-xs text-gray-300 mt-1">
-                Showing real-time publications from the database.
-              </p>
-            </div>
-          </div>
-        </div>
-      )} */}
-
       {/* Hero Section */}
       <section className="py-12 text-center">
         <div className="max-w-3xl mx-auto px-6">
@@ -179,16 +165,47 @@ const Publications = () => {
         <div className="max-w-6xl mx-auto">
           <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6">
             <div className="space-y-6">
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search publications by title, authors, venue, abstract, or tags..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-gray-800/50 text-white placeholder-gray-400 shadow-sm"
-                />
+              {/* Search Bar and View Toggle */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="relative flex-1 w-full">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search publications by title, authors, venue, abstract, or tags..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-gray-800/50 text-white placeholder-gray-400 shadow-sm"
+                  />
+                </div>
+
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <span className="text-sm text-gray-300 hidden sm:block">View:</span>
+                  <div className="flex bg-gray-800/50 border border-gray-600 rounded-xl p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`px-3 py-2 rounded-lg transition ${
+                        viewMode === 'grid'
+                          ? 'bg-cyan-600 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                      title="Grid View"
+                    >
+                      <Grid className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`px-3 py-2 rounded-lg transition ${
+                        viewMode === 'list'
+                          ? 'bg-cyan-600 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                      title="List View"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Search Tips */}
@@ -234,6 +251,7 @@ const Publications = () => {
                     matching "<span className="text-cyan-300">{searchQuery}</span>"
                   </span>
                 )}
+                <span className="ml-2">• {viewMode === 'grid' ? 'Grid' : 'List'} View</span>
                 {!error && firebasePapers && firebasePapers.length > 0 && (
                   <span className="text-green-400 ml-2">• Live</span>
                 )}
@@ -246,7 +264,7 @@ const Publications = () => {
         </div>
       </section>
 
-      {/* Publications Grid */}
+      {/* Publications Grid/List */}
       <section className="py-10 px-6 max-w-6xl mx-auto">
         {filteredPapers.length === 0 ? (
           <div className="text-center py-20">
@@ -265,7 +283,8 @@ const Publications = () => {
               Clear Search
             </button>
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
+          /* Grid View */
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPapers.map((paper, idx) => (
               <div
@@ -346,6 +365,105 @@ const Publications = () => {
                   {!paper.links?.paper && !paper.links?.code && !paper.links?.huggingface && (
                     <span className="text-sm text-gray-500 italic">Links coming soon</span>
                   )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* List View */
+          <div className="space-y-6">
+            {filteredPapers.map((paper, idx) => (
+              <div
+                key={paper.id || idx}
+                className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 group hover:border-cyan-800/50"
+              >
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Left side: Publication details */}
+                  <div className="lg:w-3/4">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2 text-cyan-400 font-medium text-sm">
+                          <FileText className="h-4 w-4" />
+                          {paper.venue || 'Research Publication'}
+                        </div>
+                        <h3 className="text-xl font-semibold text-white group-hover:text-cyan-400 transition-colors mb-2">
+                          {paper.title || 'Untitled Publication'}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-gray-400 mb-3">
+                      {paper.authors || 'Authors not specified'}
+                    </p>
+                    
+                    {/* Tags */}
+                    {paper.tags && paper.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {paper.tags.map((tag, tagIdx) => (
+                          <span
+                            key={tagIdx}
+                            className="px-2 py-1 bg-gray-800/50 text-gray-300 rounded text-xs border border-gray-700 hover:border-cyan-600/50 hover:text-cyan-300 transition-colors"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <p className="text-gray-300 text-sm leading-relaxed mb-4">
+                      {paper.abstract || 'No abstract available.'}
+                    </p>
+                  </div>
+
+                  {/* Right side: Links */}
+                  <div className="lg:w-1/4 lg:border-l lg:border-gray-700 lg:pl-6">
+                    <div className="flex flex-col gap-3 h-full justify-center">
+                      {paper.links?.paper && (
+                        <a
+                          href={paper.links.paper}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 rounded-lg text-sm hover:bg-gray-700/50 hover:border-cyan-500 transition-all text-gray-300 hover:text-white group/link"
+                          title="Read Paper"
+                        >
+                          <FileText className="h-4 w-4" />
+                          <span>Read Paper</span>
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                        </a>
+                      )}
+                      {paper.links?.code && (
+                        <a
+                          href={paper.links.code}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 rounded-lg text-sm hover:bg-gray-700/50 hover:border-cyan-500 transition-all text-gray-300 hover:text-white group/link"
+                          title="View Code"
+                        >
+                          <Code className="h-4 w-4" />
+                          <span>View Code</span>
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                        </a>
+                      )}
+                      {paper.links?.huggingface && (
+                        <a
+                          href={paper.links.huggingface}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 rounded-lg text-sm hover:bg-gray-700/50 hover:border-cyan-500 transition-all text-gray-300 hover:text-white group/link"
+                          title="HuggingFace"
+                        >
+                          <HuggingFaceLogo className="h-4 w-4 text-[#FFD21E]" />
+                          <span>HuggingFace</span>
+                          <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                        </a>
+                      )}
+                      {!paper.links?.paper && !paper.links?.code && !paper.links?.huggingface && (
+                        <div className="text-center py-4">
+                          <span className="text-sm text-gray-500 italic">Links coming soon</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
