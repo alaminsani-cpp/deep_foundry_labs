@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Header, Footer } from "./components/layout";
 import { Home, Projects, People, Publications, Models, Datasets, Join, Contact, FAQ, NotFound } from "./components/pages";
-import { AuthProvider } from "./contexts/AuthContext.jsx";
+import Admin from "./components/pages/admin.jsx";  // Fixed import
+import { AuthProvider } from "./contexts/authcontext.jsx";  // Lowercase
 
 function AppContent() {
   return (
@@ -20,7 +21,8 @@ function AppContent() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/join" element={<Join />} />
           <Route path="/contact" element={<Contact />} />
-          {/* 404 Route - This catches all unmatched routes */}
+          <Route path="/admin/*" element={<Admin />} />
+          {/* 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
