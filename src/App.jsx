@@ -12,7 +12,7 @@ function AppContent() {
         <Router>
           <Routes>
             {/* Admin route - full width, no header/footer */}
-            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/admin" element={<Admin />} />
             
             {/* Regular pages with header, footer and container */}
             <Route path="/*" element={
