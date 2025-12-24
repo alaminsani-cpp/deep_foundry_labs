@@ -11,8 +11,11 @@ function AppContent() {
       <AuthProvider>
         <Router>
           <Routes>
-            {/* Admin route - full width, no header/footer */}
-            <Route path="/admin" element={<Admin />} />
+            {/* FIX: Changed path="/admin" to path="/admin/*"
+              The '*' allows the Admin component to handle its own nested routes 
+              (like /admin/login and /admin/dashboard) internally.
+            */}
+            <Route path="/admin/*" element={<Admin />} />
             
             {/* Regular pages with header, footer and container */}
             <Route path="/*" element={
@@ -30,6 +33,7 @@ function AppContent() {
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/join" element={<Join />} />
                     <Route path="/contact" element={<Contact />} />
+                    
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
