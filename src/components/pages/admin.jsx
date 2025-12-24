@@ -3,8 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/authcontext.jsx';
 import AdminLogin from './admin/adminlogin.jsx';
 import AdminDashboard from './admin/admindashboard.jsx';
-import AdminDatasets from './admin/admindatasets.jsx';
-
 
 const ProtectedRoute = ({ children }) => {
   const { isAdmin, loading } = useAuth();
@@ -32,16 +30,14 @@ const Admin = () => {
     <div className="admin-layout">
       <Routes>
         <Route path="/login" element={<AdminLogin />} />
-        <Route path="/" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/datasets" element={
-          <ProtectedRoute>
-            <AdminDatasets />
-          </ProtectedRoute>
-        } />
+        <Route 
+          path="/*" 
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     </div>
   );
