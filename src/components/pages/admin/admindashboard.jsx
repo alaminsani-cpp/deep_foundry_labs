@@ -39,6 +39,7 @@ const AdminModels = lazy(() => import('./adminmodels.jsx'));
 const AdminProjects = lazy(() => import('./adminprojects.jsx'));
 const AdminPublications = lazy(() => import('./adminpublications.jsx')); 
 const AdminLogs = lazy(() => import('./adminlogs.jsx'));
+const AdminPeoples = lazy(() => import('./adminpeoples.jsx'));
 
 // Error Boundary component
 const ErrorBoundary = ({ children, fallback }) => {
@@ -267,6 +268,13 @@ const AdminDashboard = () => {
       icon: FileText,
       description: 'Research papers',
       component: 'AdminPublications'
+    },
+    {
+    id: 'team', // New section
+    name: 'Team',
+    icon: Users,
+    description: 'Manage team members',
+    component: 'AdminPeoples'
     },
     {
       id: 'logs',
@@ -599,6 +607,15 @@ const AdminDashboard = () => {
             </Suspense>
           </ErrorBoundary>
         );
+
+      case 'team': // Add this new case
+        return (
+          <ErrorBoundary fallback={<LoadingSpinner />}>
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminPeoples />
+            </Suspense>
+          </ErrorBoundary>
+      );
       
       case 'logs':
         return (

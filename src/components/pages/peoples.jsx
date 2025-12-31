@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { Linkedin, Github, Mail, ExternalLink, Award, BookOpen, Users, MapPin, AlertCircle, Loader, Grid, List } from 'lucide-react';
+import { Linkedin, Github, Mail, ExternalLink, Award, BookOpen, Users, MapPin, AlertCircle, Loader, Grid, List, User } from 'lucide-react';
 import useFirebaseData from '../extra/usefb.js';
 
-// Fallback data in case Firebase is not available
+// Fallback data in case Firebase is not available (updated to 3 members)
 const fallbackTeam = [
   {
-    id: "fallback-1",
-    name: "Ahmed Sani",
-    title: "Lead AI Researcher",
+    id: "ahmed-sani",
+    name: "Dr. Ahmed Sani",
+    title: "Lead AI Researcher & Founder",
     role: "Core Team",
-    bio: "Researcher focusing on NLP, multimodal learning, and low-resource language AI with publications in IEEE and ACM venues.",
+    bio: "PhD in Computer Science with focus on NLP and multimodal AI. Published 15+ papers in IEEE/ACM venues. Leads research on Bangla language models and low-resource AI solutions.",
     location: "Dhaka, Bangladesh",
-    expertise: ["NLP", "Transformer", "Multimodal AI", "Bangla NLP"],
+    expertise: ["NLP", "Transformer Models", "Multimodal AI", "Bangla NLP", "Research Leadership"],
+    profilePicture: "https://i.ibb.co.com/84KpZYSm/admin2.jpg",
     stats: {
       publications: 15,
       projects: 9,
@@ -25,13 +26,14 @@ const fallbackTeam = [
     }
   },
   {
-    id: "fallback-2",
+    id: "nadia-rahman",
     name: "Nadia Rahman",
-    title: "Computer Vision Engineer",
+    title: "Computer Vision Lead",
     role: "Researchers",
-    bio: "Specializes in computer vision, medical imaging, and multimodal fusion for healthcare applications.",
+    bio: "Specializes in computer vision, medical imaging AI, and multimodal fusion. Leads healthcare AI projects with focus on diagnostic systems for low-resource settings.",
     location: "Dhaka, Bangladesh",
-    expertise: ["Computer Vision", "Medical AI", "Deep Learning", "PyTorch"],
+    expertise: ["Computer Vision", "Medical AI", "Deep Learning", "PyTorch", "Healthcare AI"],
+    profilePicture: "https://i.ibb.co.com/ynmZsLW7/Whats-App-Image-2025-10-22-at-2-20-00-PM.jpg",
     stats: {
       publications: 8,
       projects: 6,
@@ -44,13 +46,14 @@ const fallbackTeam = [
     }
   },
   {
-    id: "fallback-3",
+    id: "tariq-hasan",
     name: "Tariq Hasan",
-    title: "ML Engineer",
+    title: "ML Engineering Lead",
     role: "Engineers",
-    bio: "Builds scalable machine learning pipelines and deploys AI models to production environments.",
+    bio: "Expert in MLOps, cloud infrastructure, and production AI systems. Builds scalable pipelines for deploying research models to real-world applications.",
     location: "Remote",
-    expertise: ["MLOps", "Cloud", "Docker", "Kubernetes", "TensorFlow"],
+    expertise: ["MLOps", "Cloud Architecture", "Docker/Kubernetes", "TensorFlow", "Production Deployment"],
+    profilePicture: "https://i.ibb.co.com/0RKBFbwW/admin3.jpg",
     stats: {
       publications: 5,
       projects: 12,
@@ -61,68 +64,11 @@ const fallbackTeam = [
       github: "#",
       email: "tariq@deepfoundrylabs.com"
     }
-  },
-  {
-    id: "fallback-4",
-    name: "Rina Chowdhury",
-    title: "NLP Researcher",
-    role: "Researchers",
-    bio: "Works on Bangla language models, sentiment analysis, and low-resource NLP techniques.",
-    location: "Chittagong, Bangladesh",
-    expertise: ["NLP", "Sentiment Analysis", "Bangla", "BERT"],
-    stats: {
-      publications: 7,
-      projects: 5,
-      citations: 112
-    },
-    links: {
-      linkedin: "#",
-      github: "#",
-      email: "rina@deepfoundrylabs.com"
-    }
-  },
-  {
-    id: "fallback-5",
-    name: "Dr. Kazi Ahmed",
-    title: "Academic Advisor",
-    role: "Advisors",
-    bio: "Professor of Computer Science with expertise in AI ethics, responsible AI, and machine learning theory.",
-    location: "University of Dhaka",
-    expertise: ["AI Ethics", "Theory", "Research Methodology", "Publications"],
-    stats: {
-      publications: 42,
-      projects: 18,
-      citations: 2100
-    },
-    links: {
-      linkedin: "#",
-      email: "kazi@university.edu",
-      website: "#"
-    }
-  },
-  {
-    id: "fallback-6",
-    name: "Samia Khan",
-    title: "Data Scientist",
-    role: "Contributors",
-    bio: "Contributes to dataset creation, annotation pipelines, and data quality assurance for AI projects.",
-    location: "Remote",
-    expertise: ["Data Science", "Annotation", "Quality Assurance", "Python"],
-    stats: {
-      publications: 3,
-      projects: 7,
-      citations: 45
-    },
-    links: {
-      linkedin: "#",
-      github: "#",
-      email: "samia@deepfoundrylabs.com"
-    }
   }
 ];
 
-// Static roles for filtering
-const roles = ['All', 'Core Team', 'Researchers', 'Engineers', 'Contributors', 'Advisors'];
+// Static roles for filtering (updated to match the 3 roles)
+const roles = ['All', 'Core Team', 'Researchers', 'Engineers'];
 
 const People = () => {
   const [selectedRole, setSelectedRole] = useState('All');
@@ -159,6 +105,29 @@ const People = () => {
       case 'Advisors': return 'bg-amber-900/30 text-amber-400 border border-amber-700';
       default: return 'bg-gray-800/30 text-gray-400 border border-gray-700';
     }
+  };
+
+  // Function to render profile picture or initials
+  const renderProfileImage = (member) => {
+    if (member.profilePicture) {
+      return (
+        <img 
+          src={member.profilePicture} 
+          alt={member.name} 
+          className="w-full h-full object-cover rounded-full"
+          onError={(e) => {
+            // Fallback to initials if image fails to load
+            e.target.style.display = 'none';
+            e.target.parentElement.querySelector('.profile-initials').style.display = 'flex';
+          }}
+        />
+      );
+    }
+    return (
+      <div className="profile-initials flex items-center justify-center w-full h-full text-white text-2xl font-semibold">
+        {getInitials(member.name)}
+      </div>
+    );
   };
 
   if (loading) {
@@ -304,8 +273,8 @@ const People = () => {
               >
                 {/* Avatar and Basic Info */}
                 <div className="flex flex-col items-center text-center mb-4">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-semibold mb-4 group-hover:scale-105 transition-transform">
-                    {getInitials(member.name)}
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform overflow-hidden relative">
+                    {renderProfileImage(member)}
                   </div>
                   <h3 className="text-xl font-medium text-white mb-1">{member.name || 'Team Member'}</h3>
                   <p className="text-sm text-gray-400 mb-2">{member.title || 'AI Professional'}</p>
@@ -432,8 +401,8 @@ const People = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* Left side: Avatar and basic info */}
                   <div className="lg:w-1/4 flex flex-col items-center lg:items-start">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xl font-semibold mb-4 group-hover:scale-105 transition-transform">
-                      {getInitials(member.name)}
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform overflow-hidden relative">
+                      {renderProfileImage(member)}
                     </div>
                     
                     <div className="text-center lg:text-left">
@@ -592,4 +561,4 @@ const People = () => {
   );
 };
 
-export default People; 
+export default People;
